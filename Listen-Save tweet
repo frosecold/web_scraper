@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr 13 17:04:46 2017
+
+@author: franco
+"""
+import tweepy
+from tweepy import Stream
+from tweepy import OAuthHandler
+from tweepy.streaming import StreamListener
+import time
+
+#consumer key, consumer secret, access token, access secret.
+ckey="je1LQs78Y7cAaSri9ym6yzbo2"
+csecret="AjOvkFaLul2QVEHbYZIInGoIAgpdXxVNAKmTsRo85qKMoamPu2"
+atoken="120909840-thbApVBzxrfyCZNB2iLBSN2AiZpMTXs6sMgImE6e"
+asecret="tuAJGb79CI0tmpjlhwPcbI2FnLFWSjAy6RXaTcWJhgqVG"
+
+class listener(StreamListener):
+
+    def on_data(self, data):
+        try:
+            #print(data)
+            tweet = data.split(',"text":"')[1].split('","source":')[0]
+            tweet2 = data.split(',"location":"')[1].split('","url"')[0]
+            tweet3 = data.split('"name":"')[1].split('","screen_name"')[0]
+            tweet4 = data.split('"user":{"id":')[1].split(',"id_str":"')[0]
+            tweet5 = data.split('"created_at":"')[1].split(' +0000')[0]
+            #print(tweet)
+            #print(tweet2)
+            #print(tweet3)
+            #print(tweet4)
+            #print(tweet5)
+            tweet4=int(tweet4)
+            #print(type(tweet4))
+            api = tweepy.API(auth)
+            username = api.get_user(tweet4)
+            screen_name = username.screen_name
+            saveThis = tweet5+'::'+tweet+'::' + tweet2 + '::'+ tweet3 + '::' + screen_name
+            saveFile = open('choque auto.txt', 'a')
+            print(saveThis)
+            saveFile.write(saveThis)
+            saveFile.write('\n')
+            saveFile.close()
+            return(True)
+        except BaseException as e:
+            #print('ERROR NOJODA,', str(e))
+            time.sleep(5)
+            pass
+
+    def on_error(self, status):
+        print (status)
+
+auth = OAuthHandler(ckey, csecret)
+auth.set_access_token(atoken, asecret)
+
+twitterStream = Stream(auth, listener())
+twitterStream.filter(track=["choque auto"])
